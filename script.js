@@ -250,8 +250,6 @@ const FALLBACK_STAGES = [
   },
 ];
 
-];
-
 function transformStage(stage, type) {
   const transformRow = (row) => {
     if (type === 'mirrorH') return row.split('').reverse().join('');
