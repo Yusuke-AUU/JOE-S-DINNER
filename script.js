@@ -125,19 +125,18 @@ const CHAR_EMOJI = {
 };
 
 // Fallback stages (used if API fails) - carefully crafted, all solvable
-const LEVEL_COUNT = 10;
+const LEVEL_COUNT = 15;
 const USE_AI_FOR_NUMBERED_LEVELS = false;
 
 const FALLBACK_STAGES = [
   {
     grid: [
       '#######',
-      '#     #',
-      '# @B G#',
+      '#@B G #',
       '#     #',
       '#######',
     ],
-    hint: 'Warm-up: learn how Joe and the crates move.',
+    hint: 'Level 1: warm-up. Learn how Joe and the crates move.',
   },
   {
     grid: [
@@ -148,42 +147,51 @@ const FALLBACK_STAGES = [
       '#      #',
       '########',
     ],
-    hint: 'Move the crate first. It blocks the clean route.',
-  },
-  {
-    grid: [
-      '##########',
-      '#@  X    #',
-      '# ## ### #',
-      '# B    G #',
-      '#   X    #',
-      '##########',
-    ],
-    hint: 'Now the puzzle starts. Create space before touching Joe.',
+    hint: 'Level 2: move the crate first. It blocks the clean route.',
   },
   {
     grid: [
       '#########',
-      '#       #',
+      '#@  X   #',
+      '# ## ## #',
+      '#   B G #',
+      '#   X   #',
+      '#########',
+    ],
+    hint: 'Level 3: make space before you touch Joe.',
+  },
+  {
+    grid: [
+      '#########',
+      '#@ X    #',
+      '# ## #  #',
+      '#  B  G #',
+      '#  X    #',
+      '#########',
+    ],
+    hint: 'Level 4: one wrong shove and the room starts shrinking fast.',
+  },
+  {
+    grid: [
+      '##########',
+      '#@ X     #',
+      '# ## ### #',
+      '#  X B G #',
+      '#    #   #',
+      '##########',
+    ],
+    hint: 'Level 5: the grown-up zone starts here.',
+  },
+  {
+    grid: [
+      '#########',
       '#   XG ##',
       '## BX   #',
       '## @  # #',
       '#       #',
       '#########',
     ],
-    hint: 'One wrong shove and the room collapses.',
-  },
-  {
-    grid: [
-      '#########',
-      '##  #   #',
-      '#   @ X##',
-      '#   X B #',
-      '#      G#',
-      '##      #',
-      '#########',
-    ],
-    hint: 'Level 5: adults should need a minute here.',
+    hint: 'Level 6: a narrow room with very little forgiveness.',
   },
   {
     grid: [
@@ -196,7 +204,7 @@ const FALLBACK_STAGES = [
       '#        #',
       '##########',
     ],
-    hint: 'Think three pushes ahead. Then think three more.',
+    hint: 'Level 7: think three pushes ahead, not one.',
   },
   {
     grid: [
@@ -209,7 +217,7 @@ const FALLBACK_STAGES = [
       '#  #    # #',
       '###########',
     ],
-    hint: 'This is where brute force starts losing badly.',
+    hint: 'Level 8: brute force starts losing badly here.',
   },
   {
     grid: [
@@ -222,18 +230,7 @@ const FALLBACK_STAGES = [
       '# XG     #',
       '##########',
     ],
-    hint: 'Level 8: a real maze. Patience beats speed.',
-  },
-  {
-    grid: [
-      '########',
-      '#   #  #',
-      '# B XX #',
-      '#   # G#',
-      '#@     #',
-      '########',
-    ],
-    hint: 'Tiny board, brutal problem.',
+    hint: 'Level 9: a real maze. Patience beats speed.',
   },
   {
     grid: [
@@ -246,9 +243,68 @@ const FALLBACK_STAGES = [
       '# X   #GX #',
       '###########',
     ],
-    hint: 'Final stage: this one is genuinely nasty.',
+    hint: 'Level 10: final exam for the normal stages.',
   },
-];
+  {
+    grid: [
+      '##########',
+      '#@   #   #',
+      '# XX   X #',
+      '#  ##    #',
+      '# B   ## #',
+      '#   X  G #',
+      '##########',
+    ],
+    hint: 'Level 11: welcome to the brutal set. You need a real plan now.',
+  },
+  {
+    grid: [
+      '###########',
+      '#@ X   #  #',
+      '#  ### X  #',
+      '# X B   #G#',
+      '#   ## X  #',
+      '#        ##',
+      '###########',
+    ],
+    hint: 'Level 12: one detour can ruin the whole route.',
+  },
+  {
+    grid: [
+      '############',
+      '#@ X   #   #',
+      '#  ## XX   #',
+      '# B    ## G#',
+      '#  X #     #',
+      '############',
+    ],
+    hint: 'Level 13: compact board, ugly consequences.',
+  },
+  {
+    grid: [
+      '############',
+      '#@ X #   X #',
+      '#  ## XX   #',
+      '# B   ### G#',
+      '# X  X     #',
+      '#    #     #',
+      '############',
+    ],
+    hint: 'Level 14: this one is vicious. You are managing traffic, not just Joe.',
+  },
+  {
+    grid: [
+      '############',
+      '#@ X #   X #',
+      '#  ## XX  X#',
+      '# B   ### G#',
+      '# X  X     #',
+      '#    #     #',
+      '############',
+    ],
+    hint: 'Level 15: true nightmare fuel. Deep breath.',
+  },
+]
 
 function transformStage(stage, type) {
   const transformRow = (row) => {
