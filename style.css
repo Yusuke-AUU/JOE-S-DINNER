@@ -535,3 +535,15 @@ body {
 @media (max-width: 380px) {
   .level-btn { width: 34px; height: 34px; font-size: 0.9rem; }
 }
+
+
+.crate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: calc(var(--cell-size) * 0.58);
+  line-height: 1;
+  filter: drop-shadow(0 2px 1px rgba(0,0,0,0.15));
+}

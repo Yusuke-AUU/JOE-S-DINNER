@@ -10,10 +10,12 @@ const CELL = {
   WALL:        '#',
   FLOOR:       ' ',
   PLAYER:      '@',
-  BOX:         'B',
+  JOE:         'B',
   GOAL:        'G',
   PLAYER_GOAL: '+',
-  BOX_GOAL:    '*',
+  JOE_GOAL:    '*',
+  CRATE:       'X',
+  CRATE_GOAL:  'x',
 };
 
 // Character SVG sprites (inline, no emoji dependency)
@@ -123,7 +125,7 @@ const CHAR_EMOJI = {
 };
 
 // Fallback stages (used if API fails) - carefully crafted, all solvable
-const LEVEL_COUNT = 20;
+const LEVEL_COUNT = 10;
 const USE_AI_FOR_NUMBERED_LEVELS = false;
 
 const FALLBACK_STAGES = [
@@ -131,242 +133,123 @@ const FALLBACK_STAGES = [
     grid: [
       '#######',
       '#     #',
-      '#  @  #',
-      '#  B  #',
-      '#  G  #',
+      '# @B G#',
       '#     #',
       '#######',
     ],
-    hint: 'Push Joe straight down.',
-  },
-  {
-    grid: [
-      '#######',
-      '#     #',
-      '# @   #',
-      '# B # #',
-      '#   G #',
-      '#     #',
-      '#######',
-    ],
-    hint: 'Use the open lane.',
+    hint: 'Warm-up: learn how Joe and the crates move.',
   },
   {
     grid: [
       '########',
-      '#      #',
-      '# @    #',
-      '# B ## #',
-      '#    G #',
-      '#      #',
-      '########',
-    ],
-    hint: 'Walk around the wall.',
-  },
-  {
-    grid: [
-      '########',
-      '#      #',
-      '#  ### #',
-      '# @ B  #',
-      '#    G #',
+      '#@     #',
+      '#   X  #',
+      '#  B G #',
       '#      #',
       '########',
     ],
-    hint: 'Make space first.',
-  },
-  {
-    grid: [
-      '#########',
-      '#       #',
-      '# @  #  #',
-      '# B  #  #',
-      '#    #G #',
-      '#       #',
-      '#########',
-    ],
-    hint: 'Take the long route.',
-  },
-  {
-    grid: [
-      '#########',
-      '#   #   #',
-      '# @ # B #',
-      '#   #   #',
-      '#     G #',
-      '#       #',
-      '#########',
-    ],
-    hint: 'Drop below, then push.',
-  },
-  {
-    grid: [
-      '#########',
-      '#       #',
-      '#  ###  #',
-      '# @  B  #',
-      '#  ###G #',
-      '#       #',
-      '#########',
-    ],
-    hint: 'Not straight ahead.',
+    hint: 'Move the crate first. It blocks the clean route.',
   },
   {
     grid: [
       '##########',
-      '#        #',
-      '# @  ##  #',
-      '#    B   #',
-      '#  ##   G#',
+      '#@  X    #',
+      '# ## ### #',
+      '# B    G #',
+      '#   X    #',
+      '##########',
+    ],
+    hint: 'Now the puzzle starts. Create space before touching Joe.',
+  },
+  {
+    grid: [
+      '#########',
+      '#       #',
+      '#   XG ##',
+      '## BX   #',
+      '## @  # #',
+      '#       #',
+      '#########',
+    ],
+    hint: 'One wrong shove and the room collapses.',
+  },
+  {
+    grid: [
+      '#########',
+      '##  #   #',
+      '#   @ X##',
+      '#   X B #',
+      '#      G#',
+      '##      #',
+      '#########',
+    ],
+    hint: 'Level 5: adults should need a minute here.',
+  },
+  {
+    grid: [
+      '##########',
+      '##    X G#',
+      '#X   #   #',
+      '## #     #',
+      '#   X@   #',
+      '#  B  ## #',
       '#        #',
       '##########',
     ],
-    hint: 'Circle around twice.',
+    hint: 'Think three pushes ahead. Then think three more.',
+  },
+  {
+    grid: [
+      '###########',
+      '#      G  #',
+      '# #    # @#',
+      '#     #   #',
+      '#   X  # X#',
+      '# X BX##  #',
+      '#  #    # #',
+      '###########',
+    ],
+    hint: 'This is where brute force starts losing badly.',
   },
   {
     grid: [
       '##########',
-      '#        #',
-      '#  @ #   #',
-      '#  B #   #',
-      '#    # G #',
-      '#        #',
+      '# #X#  # #',
+      '#   BX   #',
+      '##       #',
+      '#@       #',
+      '#   # #  #',
+      '# XG     #',
       '##########',
     ],
-    hint: 'Stay clear of corners.',
+    hint: 'Level 8: a real maze. Patience beats speed.',
+  },
+  {
+    grid: [
+      '########',
+      '#   #  #',
+      '# B XX #',
+      '#   # G#',
+      '#@     #',
+      '########',
+    ],
+    hint: 'Tiny board, brutal problem.',
   },
   {
     grid: [
       '###########',
+      '# ## #X  @#',
+      '# B  X    #',
+      '#  #      #',
+      '# ##    # #',
       '#         #',
-      '# @ ###   #',
-      '#   B     #',
-      '#   ### G #',
-      '#         #',
+      '# X   #GX #',
       '###########',
     ],
-    hint: 'Center first, goal later.',
+    hint: 'Final stage: this one is genuinely nasty.',
   },
-  {
-    grid: [
-      '###########',
-      '#      #  #',
-      '# @    #  #',
-      '#   B     #',
-      '#   ### G #',
-      '#         #',
-      '###########',
-    ],
-    hint: 'Create room on the right.',
-  },
-  {
-    grid: [
-      '###########',
-      '#   #     #',
-      '# @ #  B  #',
-      '#   ###   #',
-      '#       G #',
-      '#         #',
-      '###########',
-    ],
-    hint: 'Middle wall is the trap.',
-  },
-  {
-    grid: [
-      '###########',
-      '#         #',
-      '# @  ##   #',
-      '#  B   #  #',
-      '#   ##  G #',
-      '#         #',
-      '###########',
-    ],
-    hint: 'Open the lower lane.',
-  },
-  {
-    grid: [
-      '###########',
-      '#   #     #',
-      '# @   ##  #',
-      '#  B      #',
-      '#   ##  G #',
-      '#         #',
-      '###########',
-    ],
-    hint: 'Use both open sides.',
-  },
-  {
-    grid: [
-      '###########',
-      '#         #',
-      '# @ ##    #',
-      '#    B #  #',
-      '#  ##   G #',
-      '#         #',
-      '###########',
-    ],
-    hint: 'Approach from below.',
-  },
-  {
-    grid: [
-      '###########',
-      '#   #     #',
-      '# @ # ### #',
-      '#   B     #',
-      '# ###   G #',
-      '#         #',
-      '###########',
-    ],
-    hint: 'Escape the narrow hall.',
-  },
-  {
-    grid: [
-      '###########',
-      '#         #',
-      '#  ### @  #',
-      '#  B      #',
-      '#   ### G #',
-      '#         #',
-      '###########',
-    ],
-    hint: 'Left looks easy. It is not.',
-  },
-  {
-    grid: [
-      '###########',
-      '#         #',
-      '# @  # ## #',
-      '#  B #    #',
-      '#    #  G #',
-      '#         #',
-      '###########',
-    ],
-    hint: 'Do not jam the center.',
-  },
-  {
-    grid: [
-      '###########',
-      '#   #     #',
-      '# @ # ##  #',
-      '#   B     #',
-      '# ##   #G #',
-      '#         #',
-      '###########',
-    ],
-    hint: 'Room is precious here.',
-  },
-  {
-    grid: [
-      '###########',
-      '#   #     #',
-      '# @   ### #',
-      '#  B      #',
-      '# ###  #G #',
-      '#         #',
-      '###########',
-    ],
-    hint: 'Final stage: be patient.',
-  },
+];
+
 ];
 
 function transformStage(stage, type) {
@@ -558,7 +441,7 @@ function loadStage(stageData) {
       if (c === CELL.PLAYER || c === CELL.PLAYER_GOAL) {
         playerPos = { x, y };
       }
-      if (c === CELL.GOAL || c === CELL.PLAYER_GOAL || c === CELL.BOX_GOAL) {
+      if (c === CELL.GOAL || c === CELL.PLAYER_GOAL || c === CELL.JOE_GOAL || c === CELL.CRATE_GOAL) {
         goalCount++;
       }
     }
@@ -616,13 +499,21 @@ function renderBoard() {
           cell.classList.add('cell-player', 'cell-goal');
           cell.appendChild(makeCharEl(selectedChar, cellSize * 0.8));
           break;
-        case CELL.BOX:
+        case CELL.JOE:
           cell.classList.add('cell-box', 'cell-floor');
           cell.appendChild(makeJoeEl(cellSize * 0.82));
           break;
-        case CELL.BOX_GOAL:
+        case CELL.JOE_GOAL:
           cell.classList.add('cell-box-on-goal');
           cell.appendChild(makeJoeEl(cellSize * 0.82));
+          break;
+        case CELL.CRATE:
+          cell.classList.add('cell-floor');
+          cell.innerHTML = '<div class="crate">📦</div>';
+          break;
+        case CELL.CRATE_GOAL:
+          cell.classList.add('cell-goal');
+          cell.innerHTML = '<div class="crate">📦</div>';
           break;
         default:
           cell.classList.add('cell-floor');
@@ -650,23 +541,29 @@ function move(dx, dy) {
   // Wall
   if (target === CELL.WALL) return;
 
-  // Box or box on goal
-  if (target === CELL.BOX || target === CELL.BOX_GOAL) {
+  // Push Joe or a crate
+  if (target === CELL.JOE || target === CELL.JOE_GOAL || target === CELL.CRATE || target === CELL.CRATE_GOAL) {
     const bnx = nx + dx;
     const bny = ny + dy;
     if (bny < 0 || bny >= board.length || bnx < 0 || bnx >= board[bny].length) return;
-    const beyondBox = board[bny]?.[bnx];
-    if (!beyondBox || beyondBox === CELL.WALL || beyondBox === CELL.BOX || beyondBox === CELL.BOX_GOAL) return;
+    const beyond = board[bny]?.[bnx];
+    const blocked = [CELL.WALL, CELL.JOE, CELL.JOE_GOAL, CELL.CRATE, CELL.CRATE_GOAL];
+    if (!beyond || blocked.includes(beyond)) return;
 
-    // Move box
-    board[bny][bnx] = (beyondBox === CELL.GOAL) ? CELL.BOX_GOAL : CELL.BOX;
-    board[ny][nx]   = (target === CELL.BOX_GOAL) ? CELL.GOAL : CELL.FLOOR;
+    const movingJoe = target === CELL.JOE || target === CELL.JOE_GOAL;
+    if (movingJoe) {
+      board[bny][bnx] = (beyond === CELL.GOAL) ? CELL.JOE_GOAL : CELL.JOE;
+      board[ny][nx]   = (target === CELL.JOE_GOAL) ? CELL.GOAL : CELL.FLOOR;
+    } else {
+      board[bny][bnx] = (beyond === CELL.GOAL) ? CELL.CRATE_GOAL : CELL.CRATE;
+      board[ny][nx]   = (target === CELL.CRATE_GOAL) ? CELL.GOAL : CELL.FLOOR;
+    }
   }
 
   // Move player
   const currentCell = board[y][x];
   board[y][x] = (currentCell === CELL.PLAYER_GOAL) ? CELL.GOAL : CELL.FLOOR;
-  board[ny][nx] = (board[ny][nx] === CELL.GOAL) ? CELL.PLAYER_GOAL : CELL.PLAYER;
+  board[ny][nx] = (board[ny][nx] === CELL.GOAL || board[ny][nx] === CELL.CRATE_GOAL) ? CELL.PLAYER_GOAL : CELL.PLAYER;
   playerPos = { x: nx, y: ny };
 
   steps++;
@@ -680,16 +577,13 @@ function move(dx, dy) {
 //  CHECK WIN
 // ─────────────────────────────────────────────────────
 function checkWin() {
-  let boxesOnGoal = 0;
-  let totalBoxes = 0;
   for (let y = 0; y < board.length; y++) {
     for (let x = 0; x < board[y].length; x++) {
-      if (board[y][x] === CELL.BOX || board[y][x] === CELL.BOX_GOAL) totalBoxes++;
-      if (board[y][x] === CELL.BOX_GOAL) boxesOnGoal++;
+      if (board[y][x] === CELL.JOE_GOAL) {
+        setTimeout(() => triggerClear(), 300);
+        return;
+      }
     }
-  }
-  if (totalBoxes > 0 && boxesOnGoal === totalBoxes) {
-    setTimeout(() => triggerClear(), 300);
   }
 }
 
