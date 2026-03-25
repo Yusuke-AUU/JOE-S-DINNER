@@ -15,42 +15,47 @@ exports.handler = async (event) => {
   let prompt = '';
 
   if (type === 'stage') {
-    // ステージ自動生成
-    const size = level <= 3 ? 6 : level <= 6 ? 7 : 8;
-    const boxes = level <= 3 ? 1 : level <= 6 ? 2 : 3;
-    prompt = `You are a Sokoban puzzle designer. Generate a valid Sokoban puzzle.
-Rules:
-- Grid size: ${size}x${size}
-- Number of boxes (and goals): ${boxes}
-- Player starts at a valid position
-- All boxes must be solvable (not stuck in corners initially)
-- Walls form a closed boundary
+    // Level-based parameters
+    const size     = level <= 2 ? 7 : level <= 4 ? 8 : level <= 6 ? 9 : 10;
+    const boxes    = level <= 2 ? 1 : level <= 5 ? 2 : 3;
+    const walls    = level <= 2 ? 3 : level <= 4 ? 5 : level <= 6 ? 8 : 12;
 
-Return ONLY a JSON object in this exact format, no explanation:
-{
-  "grid": [
-    "#########",
-    "#  @    #",
-    "#  B  G #",
-    "#########"
-  ],
-  "hint": "A short English hint for the player (max 8 words)"
-}
+    prompt = `You are an expert Sokoban puzzle designer. Create a VALID, SOLVABLE Sokoban puzzle.
 
-Legend: # = wall, space = floor, @ = player, B = box (Joe the dog), G = goal (food bowl)
-Make sure the puzzle is solvable!`;
+STRICT RULES:
+1. Grid is ${size} columns x ${size} rows
+2. Exactly ${boxes} box(es) labeled B, exactly ${boxes} goal(s) labeled G
+3. Exactly 1 player labeled @
+4. Outer border MUST be all # walls
+5. Add ${walls} extra # wall cells INSIDE the grid to make it challenging
+6. NO box must be placed in a corner (diagonal walls) at the START
+7. Every box MUST have a valid path to reach its goal
+8. Player must be able to reach every box
+9. Make it require at least ${level * 3} moves to solve
+
+LEGEND:
+# = wall
+  = empty floor (space character)
+@ = player start
+B = Joe the dog (box to push)
+G = food bowl (goal)
+
+IMPORTANT: Return ONLY raw JSON, no markdown, no explanation:
+{"grid":["##########","#  @     #","# B    G #","#   ##   #","#        #","##########"],"hint":"short English hint max 8 words"}
+
+The grid must be a rectangle. Every row must have the same length (${size} chars).
+DOUBLE CHECK: count B's = count G's = ${boxes}. Count @'s = 1.`;
 
   } else if (type === 'comment') {
-    // クリア時コメント生成
     const personalities = {
-      'Papa': 'a cool dad who is proud and encouraging',
-      'Mama': 'a gentle elegant mom who is warm and loving',
-      'Bro': 'a cool teenage boy who acts casual but is actually happy',
-      'Sis': 'a cheerful elementary school girl who is very excited',
+      'Papa': 'a sporty cool Japanese dad, proud but tries to act casual',
+      'Mama': 'a gentle elegant Japanese mom, warm and graceful',
+      'Bro':  'a cool Japanese middle schooler, tries to act indifferent but is secretly excited',
+      'Sis':  'a super cheerful Japanese elementary school girl, very energetic and cute',
     };
     const personality = personalities[playerName] || 'an encouraging person';
-    prompt = `You are ${personality}. The player just solved a Sokoban puzzle where they helped Joe the Miniature Schnauzer dog reach his food bowl.
-Write a short fun English comment to celebrate (max 12 words). Be in character. No quotation marks.`;
+    prompt = `You are ${personality}. Joe the Miniature Schnauzer dog just reached his food bowl in a puzzle game!
+Write ONE short celebratory English sentence (max 10 words). Stay in character. No quotation marks. Be fun and natural.`;
   }
 
   try {
@@ -63,31 +68,41 @@ Write a short fun English comment to celebrate (max 12 words). Be in character. 
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [{ role: 'user', content: prompt }],
-        max_tokens: type === 'stage' ? 400 : 60,
-        temperature: type === 'stage' ? 0.7 : 0.9,
+        max_tokens: type === 'stage' ? 600 : 60,
+        temperature: type === 'stage' ? 0.5 : 0.9,
       }),
     });
 
     const data = await res.json();
-    const content = data.choices?.[0]?.message?.content || '';
+    const content = data.choices?.[0]?.message?.content?.trim() || '';
 
     if (type === 'stage') {
-      // JSONをパース
       const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[0]);
-        return {
-          statusCode: 200,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(parsed),
-        };
+      if (!jsonMatch) {
+        return { statusCode: 500, body: JSON.stringify({ error: 'No JSON found' }) };
       }
-      return { statusCode: 500, body: JSON.stringify({ error: 'Invalid stage data' }) };
+      const parsed = JSON.parse(jsonMatch[0]);
+
+      // Validate: count boxes and goals
+      const gridStr = parsed.grid.join('');
+      const boxCount  = (gridStr.match(/B/g) || []).length;
+      const goalCount = (gridStr.match(/G/g) || []).length;
+      const playerCount = (gridStr.match(/@/g) || []).length;
+
+      if (boxCount !== goalCount || playerCount !== 1 || boxCount === 0) {
+        return { statusCode: 500, body: JSON.stringify({ error: `Invalid stage: boxes=${boxCount} goals=${goalCount} players=${playerCount}` }) };
+      }
+
+      return {
+        statusCode: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(parsed),
+      };
     } else {
       return {
         statusCode: 200,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ comment: content.trim() }),
+        body: JSON.stringify({ comment: content }),
       };
     }
   } catch (err) {
