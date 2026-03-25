@@ -123,10 +123,10 @@ const CHAR_EMOJI = {
 };
 
 // Fallback stages (used if API fails) - carefully crafted, all solvable
-const LEVEL_COUNT = 12;
+const LEVEL_COUNT = 20;
+const USE_AI_FOR_NUMBERED_LEVELS = false;
 
 const FALLBACK_STAGES = [
-  // Level 1
   {
     grid: [
       '#######',
@@ -137,9 +137,8 @@ const FALLBACK_STAGES = [
       '#     #',
       '#######',
     ],
-    hint: 'Push Joe straight down to his bowl!',
+    hint: 'Push Joe straight down.',
   },
-  // Level 2
   {
     grid: [
       '#######',
@@ -150,9 +149,8 @@ const FALLBACK_STAGES = [
       '#     #',
       '#######',
     ],
-    hint: 'Watch the wall. Push right then down.',
+    hint: 'Use the open lane.',
   },
-  // Level 3
   {
     grid: [
       '########',
@@ -163,124 +161,211 @@ const FALLBACK_STAGES = [
       '#      #',
       '########',
     ],
-    hint: 'Navigate around the walls carefully!',
+    hint: 'Walk around the wall.',
   },
-  // Level 4
+  {
+    grid: [
+      '########',
+      '#      #',
+      '#  ### #',
+      '# @ B  #',
+      '#    G #',
+      '#      #',
+      '########',
+    ],
+    hint: 'Make space first.',
+  },
+  {
+    grid: [
+      '#########',
+      '#       #',
+      '# @  #  #',
+      '# B  #  #',
+      '#    #G #',
+      '#       #',
+      '#########',
+    ],
+    hint: 'Take the long route.',
+  },
   {
     grid: [
       '#########',
       '#   #   #',
-      '# @   B #',
+      '# @ # B #',
       '#   #   #',
-      '# G   # #',
+      '#     G #',
       '#       #',
       '#########',
     ],
-    hint: 'The wall in the middle is tricky!',
+    hint: 'Drop below, then push.',
   },
-  // Level 5 - two boxes
   {
     grid: [
       '#########',
-      '#   #   #',
-      '# B @ B #',
-      '# #   # #',
-      '# G   G #',
+      '#       #',
+      '#  ###  #',
+      '# @  B  #',
+      '#  ###G #',
       '#       #',
       '#########',
     ],
-    hint: 'Two dogs, two bowls. Think twice!',
+    hint: 'Not straight ahead.',
   },
-  // Level 6
   {
     grid: [
       '##########',
       '#        #',
-      '# B ## B #',
-      '#  @     #',
-      '# G ## G #',
+      '# @  ##  #',
+      '#    B   #',
+      '#  ##   G#',
       '#        #',
       '##########',
     ],
-    hint: 'Walls everywhere. Plan each push!',
+    hint: 'Circle around twice.',
   },
-  // Level 7
   {
     grid: [
       '##########',
-      '#  #     #',
-      '# B  # B #',
+      '#        #',
       '#  @ #   #',
-      '# G    G #',
-      '#   ##   #',
+      '#  B #   #',
+      '#    # G #',
+      '#        #',
       '##########',
     ],
-    hint: 'Advanced! Every move counts.',
+    hint: 'Stay clear of corners.',
   },
-  // Level 8
-  {
-    grid: [
-      '##########',
-      '#   #    #',
-      '# @   B  #',
-      '# ##   # #',
-      '#   B G  #',
-      '#   #  G #',
-      '##########',
-    ],
-    hint: 'Open the route first.',
-  },
-  // Level 9
-  {
-    grid: [
-      '##########',
-      '#   #    #',
-      '# B   #  #',
-      '#   @  B #',
-      '# #   G  #',
-      '#   G    #',
-      '##########',
-    ],
-    hint: 'Do not trap Joe.',
-  },
-  // Level 10
   {
     grid: [
       '###########',
       '#         #',
-      '#  B # B  #',
-      '# ## @ ## #',
-      '#  G # G  #',
+      '# @ ###   #',
+      '#   B     #',
+      '#   ### G #',
       '#         #',
       '###########',
     ],
-    hint: 'Center first, then sides.',
+    hint: 'Center first, goal later.',
   },
-  // Level 11
+  {
+    grid: [
+      '###########',
+      '#      #  #',
+      '# @    #  #',
+      '#   B     #',
+      '#   ### G #',
+      '#         #',
+      '###########',
+    ],
+    hint: 'Create room on the right.',
+  },
   {
     grid: [
       '###########',
       '#   #     #',
-      '# B   ##  #',
-      '#   @   B #',
+      '# @ #  B  #',
+      '#   ###   #',
+      '#       G #',
+      '#         #',
+      '###########',
+    ],
+    hint: 'Middle wall is the trap.',
+  },
+  {
+    grid: [
+      '###########',
+      '#         #',
+      '# @  ##   #',
+      '#  B   #  #',
+      '#   ##  G #',
+      '#         #',
+      '###########',
+    ],
+    hint: 'Open the lower lane.',
+  },
+  {
+    grid: [
+      '###########',
+      '#   #     #',
+      '# @   ##  #',
+      '#  B      #',
+      '#   ##  G #',
+      '#         #',
+      '###########',
+    ],
+    hint: 'Use both open sides.',
+  },
+  {
+    grid: [
+      '###########',
+      '#         #',
+      '# @ ##    #',
+      '#    B #  #',
       '#  ##   G #',
-      '#   G     #',
+      '#         #',
       '###########',
     ],
-    hint: 'Walk around before pushing.',
+    hint: 'Approach from below.',
   },
-  // Level 12
   {
     grid: [
       '###########',
       '#   #     #',
-      '# B   # B #',
-      '#   @     #',
-      '# #   G   #',
-      '#   G  #  #',
+      '# @ # ### #',
+      '#   B     #',
+      '# ###   G #',
+      '#         #',
       '###########',
     ],
-    hint: 'Keep both lanes alive.',
+    hint: 'Escape the narrow hall.',
+  },
+  {
+    grid: [
+      '###########',
+      '#         #',
+      '#  ### @  #',
+      '#  B      #',
+      '#   ### G #',
+      '#         #',
+      '###########',
+    ],
+    hint: 'Left looks easy. It is not.',
+  },
+  {
+    grid: [
+      '###########',
+      '#         #',
+      '# @  # ## #',
+      '#  B #    #',
+      '#    #  G #',
+      '#         #',
+      '###########',
+    ],
+    hint: 'Do not jam the center.',
+  },
+  {
+    grid: [
+      '###########',
+      '#   #     #',
+      '# @ # ##  #',
+      '#   B     #',
+      '# ##   #G #',
+      '#         #',
+      '###########',
+    ],
+    hint: 'Room is precious here.',
+  },
+  {
+    grid: [
+      '###########',
+      '#   #     #',
+      '# @   ### #',
+      '#  B      #',
+      '# ###  #G #',
+      '#         #',
+      '###########',
+    ],
+    hint: 'Final stage: be patient.',
   },
 ];
 
@@ -424,13 +509,17 @@ async function startGame(level) {
   loadingOverlay.classList.remove('hidden');
   gameBoard.innerHTML = '';
 
-  // Try AI generation, fallback if it fails
-  try {
-    const stageData = await fetchStage(level);
-    currentStageData = stageData;
-  } catch (e) {
-    console.warn('AI stage failed, using fallback:', e);
+  // Numbered stages use handcrafted puzzles for consistent difficulty.
+  if (!USE_AI_FOR_NUMBERED_LEVELS) {
     currentStageData = getFallbackStage(level);
+  } else {
+    try {
+      const stageData = await fetchStage(level);
+      currentStageData = stageData;
+    } catch (e) {
+      console.warn('AI stage failed, using fallback:', e);
+      currentStageData = getFallbackStage(level);
+    }
   }
 
   loadStage(currentStageData);

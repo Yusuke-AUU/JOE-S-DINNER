@@ -218,12 +218,14 @@ body {
 
 /* Level buttons */
 .level-btns {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
 }
 .level-btn {
-  width: 40px; height: 40px;
+  width: 100%;
+  min-width: 0;
+  height: 40px;
   border-radius: 10px;
   border: 2px solid #E8D5C4;
   background: var(--bg);
