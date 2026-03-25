@@ -66,7 +66,7 @@ Write ONE short celebratory English sentence (max 10 words). Stay in character. 
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4.1-mini',
         messages: [{ role: 'user', content: prompt }],
         max_tokens: type === 'stage' ? 600 : 60,
         temperature: type === 'stage' ? 0.5 : 0.9,
@@ -89,8 +89,12 @@ Write ONE short celebratory English sentence (max 10 words). Stay in character. 
       const goalCount = (gridStr.match(/G/g) || []).length;
       const playerCount = (gridStr.match(/@/g) || []).length;
 
-      if (boxCount !== goalCount || playerCount !== 1 || boxCount === 0) {
-        return { statusCode: 500, body: JSON.stringify({ error: `Invalid stage: boxes=${boxCount} goals=${goalCount} players=${playerCount}` }) };
+      const rows = parsed.grid || [];
+      const rowLength = rows[0]?.length || 0;
+      const rectangular = rowLength > 0 && rows.every(row => typeof row === 'string' && row.length === rowLength);
+
+      if (boxCount !== goalCount || playerCount !== 1 || boxCount === 0 || !rectangular) {
+        return { statusCode: 500, body: JSON.stringify({ error: `Invalid stage: boxes=${boxCount} goals=${goalCount} players=${playerCount} rectangular=${rectangular}` }) };
       }
 
       return {
