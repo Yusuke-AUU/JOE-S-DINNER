@@ -114,6 +114,14 @@ function makeJoeEl(size=40) {
   return wrap;
 }
 
+
+const CHAR_EMOJI = {
+  Papa: '👨',
+  Mama: '👩',
+  Bro: '👦',
+  Sis: '👧',
+};
+
 // Fallback stages (used if API fails) - carefully crafted, all solvable
 const FALLBACK_STAGES = [
   // Level 1
@@ -477,12 +485,14 @@ function move(dx, dy) {
 // ─────────────────────────────────────────────────────
 function checkWin() {
   let boxesOnGoal = 0;
+  let totalBoxes = 0;
   for (let y = 0; y < board.length; y++) {
     for (let x = 0; x < board[y].length; x++) {
+      if (board[y][x] === CELL.BOX || board[y][x] === CELL.BOX_GOAL) totalBoxes++;
       if (board[y][x] === CELL.BOX_GOAL) boxesOnGoal++;
     }
   }
-  if (boxesOnGoal >= goalCount) {
+  if (totalBoxes > 0 && boxesOnGoal === totalBoxes) {
     setTimeout(() => triggerClear(), 300);
   }
 }
@@ -492,7 +502,8 @@ function checkWin() {
 // ─────────────────────────────────────────────────────
 async function triggerClear() {
   clearSteps.textContent = steps;
-  commentChar.textContent = CHAR_EMOJI[selectedChar] || '👨';
+  commentChar.innerHTML = '';
+  commentChar.appendChild(makeCharEl(selectedChar, 44));
   commentText.textContent = '...';
   showScreen(clearScreen);
 
