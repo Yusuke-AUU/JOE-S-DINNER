@@ -13,12 +13,15 @@ exports.handler = async (event) => {
   }
 
   let prompt = '';
+  let size = 0;
+  let boxes = 0;
+  let walls = 0;
 
   if (type === 'stage') {
     // Level-based parameters
-    const size     = level <= 2 ? 7 : level <= 4 ? 8 : level <= 6 ? 9 : 10;
-    const boxes    = level <= 2 ? 1 : level <= 5 ? 2 : 3;
-    const walls    = level <= 2 ? 3 : level <= 4 ? 5 : level <= 6 ? 8 : 12;
+    size     = level <= 2 ? 7 : level <= 4 ? 8 : level <= 6 ? 9 : level <= 9 ? 10 : 11;
+    boxes    = level <= 2 ? 1 : level <= 9 ? 2 : 2;
+    walls    = level <= 2 ? 3 : level <= 4 ? 5 : level <= 6 ? 8 : level <= 9 ? 12 : 14;
 
     prompt = `You are an expert Sokoban puzzle designer. Create a VALID, SOLVABLE Sokoban puzzle.
 
@@ -83,18 +86,23 @@ Write ONE short celebratory English sentence (max 10 words). Stay in character. 
       }
       const parsed = JSON.parse(jsonMatch[0]);
 
-      // Validate: count boxes and goals
-      const gridStr = parsed.grid.join('');
-      const boxCount  = (gridStr.match(/B/g) || []).length;
-      const goalCount = (gridStr.match(/G/g) || []).length;
-      const playerCount = (gridStr.match(/@/g) || []).length;
-
+      // Validate structure and exact counts
       const rows = parsed.grid || [];
       const rowLength = rows[0]?.length || 0;
       const rectangular = rowLength > 0 && rows.every(row => typeof row === 'string' && row.length === rowLength);
+      const gridStr = rows.join('');
+      const boxCount  = (gridStr.match(/B/g) || []).length;
+      const goalCount = (gridStr.match(/G/g) || []).length;
+      const playerCount = (gridStr.match(/@/g) || []).length;
+      const allowedChars = rows.every(row => /^[# @BG]+$/.test(row));
+      const correctSize = rectangular && rows.length === rowLength && rowLength === size;
+      const borderOK = rectangular && rows.every((row, idx) => {
+        if (idx === 0 || idx === rows.length - 1) return /^#+$/.test(row);
+        return row[0] === '#' && row[row.length - 1] === '#';
+      });
 
-      if (boxCount !== goalCount || playerCount !== 1 || boxCount === 0 || !rectangular) {
-        return { statusCode: 500, body: JSON.stringify({ error: `Invalid stage: boxes=${boxCount} goals=${goalCount} players=${playerCount} rectangular=${rectangular}` }) };
+      if (!rectangular || !allowedChars || !correctSize || !borderOK || boxCount !== boxes || goalCount !== boxes || playerCount !== 1) {
+        return { statusCode: 500, body: JSON.stringify({ error: `Invalid stage: boxes=${boxCount}/${boxes} goals=${goalCount}/${boxes} players=${playerCount} rectangular=${rectangular} allowed=${allowedChars} size=${correctSize} border=${borderOK}` }) };
       }
 
       return {
