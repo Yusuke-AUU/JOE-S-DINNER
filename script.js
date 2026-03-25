@@ -123,6 +123,8 @@ const CHAR_EMOJI = {
 };
 
 // Fallback stages (used if API fails) - carefully crafted, all solvable
+const LEVEL_COUNT = 12;
+
 const FALLBACK_STAGES = [
   // Level 1
   {
@@ -202,7 +204,7 @@ const FALLBACK_STAGES = [
     ],
     hint: 'Walls everywhere. Plan each push!',
   },
-  // Level 7+
+  // Level 7
   {
     grid: [
       '##########',
@@ -215,7 +217,100 @@ const FALLBACK_STAGES = [
     ],
     hint: 'Advanced! Every move counts.',
   },
+  // Level 8
+  {
+    grid: [
+      '##########',
+      '#   #    #',
+      '# @   B  #',
+      '# ##   # #',
+      '#   B G  #',
+      '#   #  G #',
+      '##########',
+    ],
+    hint: 'Open the route first.',
+  },
+  // Level 9
+  {
+    grid: [
+      '##########',
+      '#   #    #',
+      '# B   #  #',
+      '#   @  B #',
+      '# #   G  #',
+      '#   G    #',
+      '##########',
+    ],
+    hint: 'Do not trap Joe.',
+  },
+  // Level 10
+  {
+    grid: [
+      '###########',
+      '#         #',
+      '#  B # B  #',
+      '# ## @ ## #',
+      '#  G # G  #',
+      '#         #',
+      '###########',
+    ],
+    hint: 'Center first, then sides.',
+  },
+  // Level 11
+  {
+    grid: [
+      '###########',
+      '#   #     #',
+      '# B   ##  #',
+      '#   @   B #',
+      '#  ##   G #',
+      '#   G     #',
+      '###########',
+    ],
+    hint: 'Walk around before pushing.',
+  },
+  // Level 12
+  {
+    grid: [
+      '###########',
+      '#   #     #',
+      '# B   # B #',
+      '#   @     #',
+      '# #   G   #',
+      '#   G  #  #',
+      '###########',
+    ],
+    hint: 'Keep both lanes alive.',
+  },
 ];
+
+function transformStage(stage, type) {
+  const transformRow = (row) => {
+    if (type === 'mirrorH') return row.split('').reverse().join('');
+    return row;
+  };
+
+  const grid = (() => {
+    if (type === 'mirrorV') return [...stage.grid].reverse();
+    if (type === 'mirrorBoth') return [...stage.grid].reverse().map(r => r.split('').reverse().join(''));
+    if (type === 'mirrorH') return stage.grid.map(transformRow);
+    return [...stage.grid];
+  })();
+
+  return {
+    grid,
+    hint: stage.hint,
+  };
+}
+
+function getFallbackStage(level) {
+  const exact = FALLBACK_STAGES[level - 1];
+  if (exact) return JSON.parse(JSON.stringify(exact));
+
+  const base = FALLBACK_STAGES[(level - 1) % FALLBACK_STAGES.length];
+  const variants = ['none', 'mirrorH', 'mirrorV', 'mirrorBoth'];
+  return transformStage(base, variants[Math.floor((level - 1) / FALLBACK_STAGES.length) % variants.length]);
+}
 
 // ─────────────────────────────────────────────────────
 //  STATE
@@ -245,6 +340,25 @@ const clearSteps    = document.getElementById('clearSteps');
 const commentText   = document.getElementById('commentText');
 const commentChar   = document.getElementById('commentChar');
 
+
+function ensureLevelButtons() {
+  const levelWrap = document.querySelector('.level-btns');
+  if (!levelWrap) return;
+  levelWrap.innerHTML = '';
+  for (let i = 1; i <= LEVEL_COUNT; i++) {
+    const btn = document.createElement('button');
+    btn.className = `level-btn${i === selectedLevel ? ' active' : ''}`;
+    btn.dataset.level = String(i);
+    btn.textContent = String(i);
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedLevel = i;
+    });
+    levelWrap.appendChild(btn);
+  }
+}
+
 // ─────────────────────────────────────────────────────
 //  SCREEN MANAGEMENT
 // ─────────────────────────────────────────────────────
@@ -267,13 +381,7 @@ document.querySelectorAll('.char-btn').forEach(btn => {
 document.querySelector('.char-btn[data-char="Papa"]').classList.add('selected');
 
 // Level select
-document.querySelectorAll('.level-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    selectedLevel = parseInt(btn.dataset.level);
-  });
-});
+ensureLevelButtons();
 
 // Play button
 document.getElementById('playBtn').addEventListener('click', () => {
@@ -292,7 +400,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
 
 // Next / Retry buttons
 document.getElementById('nextBtn').addEventListener('click', () => {
-  selectedLevel = Math.min(selectedLevel + 1, 9);
+  selectedLevel = Math.min(selectedLevel + 1, LEVEL_COUNT);
   // Update level button UI
   document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
   document.querySelector(`.level-btn[data-level="${selectedLevel}"]`)?.classList.add('active');
@@ -322,8 +430,7 @@ async function startGame(level) {
     currentStageData = stageData;
   } catch (e) {
     console.warn('AI stage failed, using fallback:', e);
-    const idx = Math.min(level - 1, FALLBACK_STAGES.length - 1);
-    currentStageData = FALLBACK_STAGES[idx];
+    currentStageData = getFallbackStage(level);
   }
 
   loadStage(currentStageData);
