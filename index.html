@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+  <title>JOE'S DINNER</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+  <link rel="apple-touch-icon" href="apple-touch-icon.png"/>
+  <meta property="og:title" content="JOE'S DINNER"/>
+  <meta property="og:description" content="Help Joe the Schnauzer reach his dinner! A family puzzle game."/>
+  <meta property="og:image" content="ogp.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <!-- ===== CHARACTER SELECT SCREEN ===== -->
+  <div id="selectScreen" class="screen active">
+    <div class="select-inner">
+      <div class="title-wrap">
+        <div class="paw-deco">🐾</div>
+        <h1 class="game-title">JOE'S<br/><span>DINNER</span></h1>
+        <p class="game-sub">Help Joe reach his food bowl!</p>
+      </div>
+
+      <div class="char-section">
+        <p class="char-label">Who are you today?</p>
+        <div class="char-grid">
+          <button class="char-btn" data-char="Papa">
+            <div class="char-sprite papa-sprite"></div>
+            <span>Papa</span>
+          </button>
+          <button class="char-btn" data-char="Mama">
+            <div class="char-sprite mama-sprite"></div>
+            <span>Mama</span>
+          </button>
+          <button class="char-btn" data-char="Bro">
+            <div class="char-sprite bro-sprite"></div>
+            <span>Bro</span>
+          </button>
+          <button class="char-btn" data-char="Sis">
+            <div class="char-sprite sis-sprite"></div>
+            <span>Sis</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="level-section">
+        <p class="char-label">Select Level</p>
+        <div class="level-btns">
+          <button class="level-btn active" data-level="1">1</button>
+          <button class="level-btn" data-level="2">2</button>
+          <button class="level-btn" data-level="3">3</button>
+          <button class="level-btn" data-level="4">4</button>
+          <button class="level-btn" data-level="5">5</button>
+          <button class="level-btn" data-level="6">6</button>
+          <button class="level-btn" data-level="7">7</button>
+          <button class="level-btn" data-level="8">8</button>
+          <button class="level-btn" data-level="9">9</button>
+        </div>
+      </div>
+
+      <button class="play-btn" id="playBtn">Let's Go! 🐾</button>
+    </div>
+  </div>
+
+  <!-- ===== GAME SCREEN ===== -->
+  <div id="gameScreen" class="screen">
+    <div class="game-header">
+      <button class="back-btn" id="backBtn">← Back</button>
+      <div class="header-info">
+        <span class="header-char" id="headerChar">Papa</span>
+        <span class="header-level" id="headerLevel">Level 1</span>
+        <span class="header-steps" id="headerSteps">Steps: 0</span>
+      </div>
+      <button class="reset-btn" id="resetBtn">↺ Reset</button>
+    </div>
+
+    <div class="hint-bar" id="hintBar">
+      <span id="hintText">Loading puzzle...</span>
+    </div>
+
+    <div class="board-wrap">
+      <div id="gameBoard" class="game-board"></div>
+      <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-dog">🐕</div>
+        <p>Joe is thinking...</p>
+      </div>
+    </div>
+
+    <!-- Mobile controls -->
+    <div class="mobile-controls">
+      <div class="ctrl-row">
+        <button class="ctrl-btn" id="upBtn">▲</button>
+      </div>
+      <div class="ctrl-row">
+        <button class="ctrl-btn" id="leftBtn2">◀</button>
+        <button class="ctrl-btn" id="downBtn2">▼</button>
+        <button class="ctrl-btn" id="rightBtn2">▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CLEAR SCREEN ===== -->
+  <div id="clearScreen" class="screen">
+    <div class="clear-inner">
+      <div class="clear-joe">🐕</div>
+      <h2 class="clear-title">Yay! Joe ate his dinner!</h2>
+      <div class="clear-steps-wrap">
+        <span class="clear-steps-label">Steps taken</span>
+        <span class="clear-steps-val" id="clearSteps">0</span>
+      </div>
+      <div class="comment-bubble" id="commentBubble">
+        <div class="comment-char" id="commentChar"></div>
+        <p class="comment-text" id="commentText">Loading...</p>
+      </div>
+      <div class="clear-btns">
+        <button class="play-btn" id="nextBtn">Next Stage 🐾</button>
+        <button class="play-btn outline-btn" id="retryBtn">Try Again ↺</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
